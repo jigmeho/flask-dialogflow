@@ -1,31 +1,39 @@
 from flask import Flask, request, jsonify
+import dialogflow_v2 as dialogflow
+import os
+import json
 
 app = Flask(__name__)
 
+# Đọc biến môi trường từ GOOGLE_APPLICATION_CREDENTIALS
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "dialogflow-key.json"
+
+# Hàm gửi tin nhắn tới Dialogflow
+def detect_intent_texts(project_id, session_id, text, language_code):
+    session_client = dialogflow.SessionsClient()
+    session = session_client.session_path(project_id, session_id)
+
+    text_input = dialogflow.types.TextInput(text=text, language_code=language_code)
+    query_input = dialogflow.types.QueryInput(text=text_input)
+
+    response = session_client.detect_intent(request={"session": session, "query_input": query_input})
+
+    return response.query_result.fulfillment_text
+
 @app.route("/", methods=["GET"])
 def home():
-    return "Flask server is running!"
+    return "Flask-Dialogflow Webhook is Running!"
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    req = request.get_json()
+    req = request.get_json(silent=True, force=True)
+    session_id = req.get("session", "").split("/")[-1]
+    text = req["queryResult"]["queryText"]
+    project_id = os.getenv("DIALOGFLOW_PROJECT_ID", "your-dialogflow-project-id")
     
-    # Lấy intent từ Dialogflow
-    intent = req.get("queryResult", {}).get("intent", {}).get("displayName")
+    response_text = detect_intent_texts(project_id, session_id, text, "vi")
 
-    # Xử lý intent
-    if intent == "Chào hỏi":
-        response_text = "Xin chào! Tôi có thể giúp gì cho bạn?"
-    elif intent == "Hỏi giờ":
-        response_text = "Bây giờ là 12:00 PM."
-    else:
-        response_text = "Tôi chưa hiểu yêu cầu của bạn."
-
-    # Trả kết quả về Dialogflow
-    return jsonify({
-        "fulfillmentText": response_text
-    })
+    return jsonify({"fulfillmentText": response_text})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=5000)
