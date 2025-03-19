@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-import dialogflow_v2 as dialogflow
+from google.cloud import dialogflow
 import os
 import json
 
