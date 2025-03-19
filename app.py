@@ -6,7 +6,7 @@ import json
 app = Flask(__name__)
 
 # Đọc biến môi trường từ GOOGLE_APPLICATION_CREDENTIALS
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "dialogflow-key.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "phat-phap-pho-thong-gnlg"
 
 # Hàm gửi tin nhắn tới Dialogflow
 def detect_intent_texts(project_id, session_id, text, language_code):
