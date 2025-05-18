@@ -1,0 +1,61 @@
+{
+  "name": "GetDrugSideEffects",
+  "description": "Truy xuất phản ứng phụ của thuốc từ dữ liệu FDA (Mỹ)",
+  "auth": {
+    "type": "none"
+  },
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "drug_name": {
+        "type": "string",
+        "description": "Tên của loại thuốc cần kiểm tra (ví dụ: ibuprofen, paracetamol)"
+      }
+    },
+    "required": ["drug_name"]
+  },
+  "openapi_spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "OpenFDA Drug Event API",
+      "version": "1.0.0"
+    },
+    "paths": {
+      "/drug/event.json": {
+        "get": {
+          "operationId": "getDrugSideEffects",
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              },
+              "example": "patient.drug.medicinalproduct:\"ibuprofen\""
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer"
+              },
+              "example": 3
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Danh sách phản ứng phụ từ FDA"
+            }
+          }
+        }
+      }
+    },
+    "servers": [
+      {
+        "url": "https://api.fda.gov"
+      }
+    ]
+  }
+}
